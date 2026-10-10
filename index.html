@@ -35,11 +35,11 @@
       font-size: 15px;
     }
 
-    /* 카드 그리드 */
+    /* 카드 그리드 Layout */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
       max-width: 1280px;
       margin: 0 auto;
     }
@@ -48,7 +48,7 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 14px;
-      padding: 20px 16px;
+      padding: 18px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -61,18 +61,25 @@
       border-color: var(--accent-color);
     }
 
-    /* 이미지 크롭 아바타 박스 (CSS Background 방식) */
-    .avatar-box {
-      width: 130px;
-      height: 145px;
+    /* 오려낸 이미지가 들어갈 프레임 Box */
+    .img-box {
+      width: 140px;
+      height: 155px;
       background-color: #fbf8f1;
       border-radius: 10px;
-      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
       border: 2px solid #3a3a46;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.15);
-      background-image: url('characters1.jpg');
-      background-size: 330% auto; /* 3열 기준 가로 확대 비율 */
-      background-repeat: no-repeat;
+      overflow: hidden;
+    }
+
+    .cropped-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
@@ -89,7 +96,7 @@
       justify-content: center;
     }
 
-    /* 캐릭터 이름 박스 */
+    /* 요청하신 캐릭터 네모 이름 박스 */
     .name-box {
       background: #f4f0e6;
       color: #111111;
@@ -105,140 +112,74 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
       line-height: 1.35;
     }
-
-    /* 각 캐릭터별 정밀 스프라이트 위치 매핑 (3열 x 5행 구조) */
-    .pos-0-0 { background-position: 0% 0%; }
-    .pos-1-0 { background-position: 50% 0%; }
-    .pos-2-0 { background-position: 100% 0%; }
-
-    .pos-0-1 { background-position: 0% 25%; }
-    .pos-1-1 { background-position: 50% 25%; }
-    .pos-2-1 { background-position: 100% 25%; }
-
-    .pos-0-2 { background-position: 0% 50%; }
-    .pos-1-2 { background-position: 50% 50%; }
-    .pos-2-2 { background-position: 100% 50%; }
-
-    .pos-0-3 { background-position: 0% 75%; }
-    .pos-1-3 { background-position: 50% 75%; }
-    .pos-2-3 { background-position: 100% 75%; }
-
-    .pos-0-4 { background-position: 0% 100%; }
-    .pos-1-4 { background-position: 50% 100%; }
-    .pos-2-4 { background-position: 100% 100%; }
   </style>
 </head>
 <body>
 
   <h1>🪓 도스토옙스키 『죄와 벌』 등장인물 도감</h1>
-  <p class="sub">실존주의 문학 발제를 위한 원본 픽셀 캐릭터 카드</p>
+  <p class="sub">실존주의 문학 발제를 위한 원본 픽셀 캐릭터 카드 모음</p>
 
-  <div class="grid">
-    <!-- 1행 1열: 로지온 라스콜니코프 -->
-    <div class="card">
-      <div class="avatar-box pos-0-0"></div>
-      <div class="desc">휴학 중인 23세 법학도. 초인 사상에 빠져 범죄를 저지름.</div>
-      <div class="name-box">로지온(로쟈, 로젠카, 로지카, 로지엔키) 로마노비치(로마느이치) 라스콜니코프</div>
-    </div>
+  <div class="grid" id="character-grid"></div>
 
-    <!-- 1행 2열: 아브도치야 -->
-    <div class="card">
-      <div class="avatar-box pos-1-0"></div>
-      <div class="desc">라스콜니코프의 여동생. 고결하고 자존심 강한 성품.</div>
-      <div class="name-box">아브도치야(두냐, 두네치카) 로마노브나 라스콜니코바</div>
-    </div>
+  <script>
+    // 3열 5행 원본 이미지 배치 데이터 (열: col, 행: row)
+    const characters = [
+      { name: "로지온(로쟈, 로젠카, 로지카, 로지엔키) 로마노비치(로마느이치) 라스콜니코프", desc: "휴학 중인 23세 법학도. 초인 사상에 빠져 범죄를 저지름.", col: 0, row: 0 },
+      { name: "아브도치야(두냐, 두네치카) 로마노브나 라스콜니코바", desc: "라스콜니코프의 여동생. 고결하고 자존심 강한 성품.", col: 1, row: 0 },
+      { name: "풀헤리아 알렉산드로브나 라스콜니코바", desc: "라스콜니코프의 어머니. 아들을 헌신적으로 사랑함.", col: 2, row: 0 },
 
-    <!-- 1행 3열: 풀헤리아 -->
-    <div class="card">
-      <div class="avatar-box pos-2-0"></div>
-      <div class="desc">라스콜니코프의 어머니. 아들을 헌신적으로 사랑함.</div>
-      <div class="name-box">풀헤리아 알렉산드로브나 라스콜니코바</div>
-    </div>
+      { name: "소피야(소냐, 소네치카) 세묘노브나 마르멜라도바", desc: "마르멜라도프의 친딸(18세). 자기희생을 통해 영혼을 구원함.", col: 0, row: 1 },
+      { name: "세묜 자하로비치(자하르이치) 마르멜라도프", desc: "실직한 관리. 알코올 중독으로 가족을 고통에 빠뜨림.", col: 1, row: 1 },
+      { name: "카체리나 이바노브나 마르멜라도바", desc: "마르멜라도프의 아내. 극심한 가난 속에서 발버둥치는 비극적 여성.", col: 2, row: 1 },
 
-    <!-- 2행 1열: 소피야 -->
-    <div class="card">
-      <div class="avatar-box pos-0-1"></div>
-      <div class="desc">마르멜라도프의 친딸(18세). 자기희생을 통해 영혼을 구원함.</div>
-      <div class="name-box">소피야(소냐, 소네치카) 세묘노브나 마르멜라도바</div>
-    </div>
+      { name: "드미트리 프로코피이치 라주미한(브라주미힌)", desc: "휴학 중인 대학생. 라스콜니코프의 가장 충실한 친구.", col: 0, row: 2 },
+      { name: "포르피리 페트로비치", desc: "예심판사. 날카로운 심리전으로 라스콜니코프를 압박함.", col: 1, row: 2 },
+      { name: "조시모프", desc: "의사. 라주미힌의 친구.", col: 2, row: 2 },
 
-    <!-- 2행 2열: 세묜 마르멜라도프 -->
-    <div class="card">
-      <div class="avatar-box pos-1-1"></div>
-      <div class="desc">실직한 관리. 알코올 중독으로 가족을 고통에 빠뜨림.</div>
-      <div class="name-box">세묜 자하로비치(자하르이치) 마르멜라도프</div>
-    </div>
+      { name: "알료나 이바노브나", desc: "60세쯤 된 고리대금업자, 관리 미망인.", col: 0, row: 3 },
+      { name: "리자베타 이바노브나", desc: "알료나의 이복 여동생. 온순하고 순박한 성품.", col: 1, row: 3 },
+      { name: "아르카지 이바노비치 스비드리가일로프", desc: "두냐가 가정교사로 있던 집의 가장.", col: 2, row: 3 },
 
-    <!-- 2행 3열: 카체리나 -->
-    <div class="card">
-      <div class="avatar-box pos-2-1"></div>
-      <div class="desc">마르멜라도프의 아내. 극심한 가난 속에서 발버둥치는 비극적 여성.</div>
-      <div class="name-box">카체리나 이바노브나 마르멜라도바</div>
-    </div>
+      { name: "마르파 페트로브나 스비드리가일로바", desc: "스비드리가일로프의 부인.", col: 0, row: 4 },
+      { name: "표트르 페트로비치 루쥔", desc: "마르파의 먼 친척이자 두냐의 약혼자. 이기적인 인물.", col: 1, row: 4 },
+      { name: "니코짐 포미치 / 일리야 페트로비치 / 자묘토프", desc: "경찰 서장, 경찰 부서장(중위), 경찰서 서기.", col: 2, row: 4 }
+    ];
 
-    <!-- 3행 1열: 라주미힌 -->
-    <div class="card">
-      <div class="avatar-box pos-0-2"></div>
-      <div class="desc">휴학 중인 대학생. 라스콜니코프의 가장 충실하고 따뜻한 친구.</div>
-      <div class="name-box">드미트리 프로코피이치 라주미한(브라주미힌)</div>
-    </div>
+    const sourceImg = new Image();
+    sourceImg.src = 'characters1.jpg'; // 저장소의 이미지 파일명
 
-    <!-- 3행 2열: 포르피리 페트로비치 -->
-    <div class="card">
-      <div class="avatar-box pos-1-2"></div>
-      <div class="desc">예심판사. 날카로운 심리전으로 라스콜니코프를 압박함.</div>
-      <div class="name-box">포르피리 페트로비치</div>
-    </div>
+    sourceImg.onload = () => {
+      const gridContainer = document.getElementById('character-grid');
+      
+      // 이미지의 실제 가로/세로 비율 기준 자르기 계산
+      const colWidth = sourceImg.width / 3;
+      const rowHeight = sourceImg.height / 5;
 
-    <!-- 3행 3열: 조시모프 -->
-    <div class="card">
-      <div class="avatar-box pos-2-2"></div>
-      <div class="desc">의사. 라주미힌의 친구.</div>
-      <div class="name-box">조시모프</div>
-    </div>
+      characters.forEach(char => {
+        // 1. 임시 캔버스를 만들어 각 캐릭터 부분만 정밀 잘라내기
+        const canvas = document.createElement('canvas');
+        canvas.width = colWidth;
+        canvas.height = rowHeight * 0.72; // 하단 글씨 박스는 제외하고 캐릭터만 컷
+        const ctx = canvas.getContext('2d');
 
-    <!-- 4행 1열: 알료나 이바노브나 -->
-    <div class="card">
-      <div class="avatar-box pos-0-3"></div>
-      <div class="desc">60세쯤 된 고리대금업자, 관리 미망인.</div>
-      <div class="name-box">알료나 이바노브나</div>
-    </div>
+        // 원본 좌표
+        const sx = char.col * colWidth;
+        const sy = char.row * rowHeight;
 
-    <!-- 4행 2열: 리자베타 이바노브나 -->
-    <div class="card">
-      <div class="avatar-box pos-1-3"></div>
-      <div class="desc">알료나의 이복 여동생. 온순하고 순박한 성품.</div>
-      <div class="name-box">리자베타 이바노브나</div>
-    </div>
+        // 캔버스에 그리기
+        ctx.drawImage(
+          sourceImg, 
+          sx, sy, colWidth, rowHeight * 0.72, 
+          0, 0, canvas.width, canvas.height
+        );
 
-    <!-- 4행 3열: 스비드리가일로프 -->
-    <div class="card">
-      <div class="avatar-box pos-2-3"></div>
-      <div class="desc">두냐가 가정교사로 있던 집의 가장.</div>
-      <div class="name-box">아르카지 이바노비치 스비드리가일로프</div>
-    </div>
+        // 2. 오려낸 결과를 별도의 이미지(Data URL)로 변환
+        const croppedDataUrl = canvas.toDataURL();
 
-    <!-- 5행 1열: 마르파 -->
-    <div class="card">
-      <div class="avatar-box pos-0-4"></div>
-      <div class="desc">스비드리가일로프의 부인.</div>
-      <div class="name-box">마르파 페트로브나 스비드리가일로바</div>
-    </div>
+        // 3. 카드 엘리먼트 생성
+        const card = document.createElement('div');
+        card.className = 'card';
 
-    <!-- 5행 2열: 루쥔 -->
-    <div class="card">
-      <div class="avatar-box pos-1-4"></div>
-      <div class="desc">마르파의 먼 친척이자 두냐의 약혼자. 이기적인 인물.</div>
-      <div class="name-box">표트르 페트로비치 루쥔</div>
-    </div>
-
-    <!-- 5행 3열: 경찰들 -->
-    <div class="card">
-      <div class="avatar-box pos-2-4"></div>
-      <div class="desc">경찰 서장, 경찰 부서장(중위), 경찰서 서기.</div>
-      <div class="name-box">니코짐 포미치 / 일리야 페트로비치 / 자묘토프</div>
-    </div>
-  </div>
-
-</body>
-</html>
+        card.innerHTML = `
+          <div class="img-box">
+            <img class="cropped-img" src="${croppedDataUrl}" alt="${char.name}">
