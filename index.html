@@ -1,610 +1,259 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>죄와 벌 (Crime and Punishment) - 16-Bit JRPG 인물 관계도 & 카탈로그</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DungGeunMo&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>죄와 벌 (Преступление и наказание) - 등장인물 도감 및 관계도</title>
+  <style>
+    :root {
+      --bg-color: #121214;
+      --card-bg: #1c1c22;
+      --border-color: #383842;
+      --accent-color: #d4af37;
+      --text-color: #e0e0e0;
+    }
 
-    <style>
-        body {
-            font-family: 'DungGeunMo', monospace;
-            background-color: #0b0d17;
-            color: #e2e8f0;
-            image-rendering: pixelated;
-        }
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
 
-        .font-pixel {
-            font-family: 'Press Start 2P', cursive;
-        }
+    h1 {
+      text-align: center;
+      color: var(--accent-color);
+      margin-bottom: 10px;
+    }
 
-        /* 16-bit Window Box Style */
-        .jrpg-box {
-            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
-            border: 4px solid #38bdf8;
-            outline: 2px solid #000;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), inset 0 0 10px rgba(0,0,0,0.8);
-        }
+    p.sub {
+      text-align: center;
+      color: #a0a0a0;
+      margin-bottom: 30px;
+    }
 
-        .jrpg-box-gold {
-            background: linear-gradient(135deg, #2a1b08 0%, #170d02 100%);
-            border: 4px solid #f59e0b;
-            outline: 2px solid #000;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3), inset 0 0 10px rgba(0,0,0,0.8);
-        }
+    /* 인물 카드 그리드 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-        /* Custom Pixelated Canvas Grid Effect */
-        .pixel-bg {
-            background-size: 32px 32px;
-            background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-        }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
 
-        /* Scrollbar Retro Style */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-            border: 2px solid #334155;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #f59e0b;
-            border: 2px solid #000;
-        }
+    /* 원본 이미지 크롭용 픽셀 아바타 박스 */
+    .avatar-crop {
+      width: 110px;
+      height: 140px;
+      border-radius: 8px;
+      background-color: #2a2a35;
+      background-size: 380px auto; /* 3열 이미지 해상도 기준 비율 */
+      background-repeat: no-repeat;
+      image-rendering: pixelated; /* 픽셀 선명도 유지 */
+      margin-bottom: 12px;
+      border: 2px solid #282830;
+    }
 
-        .sprite-glow {
-            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
-        }
+    /* 이름 박스 (요청하신 사각형 텍스트 박스) */
+    .name-box {
+      background: #eee;
+      color: #111;
+      border: 2px solid #000;
+      padding: 6px 10px;
+      font-weight: bold;
+      font-size: 13px;
+      text-align: center;
+      width: 90%;
+      border-radius: 4px;
+      word-break: keep-all;
+      margin-top: auto;
+    }
 
-        /* Animated Pulsing Borders */
-        @keyframes pulse-border {
-            0%, 100% { border-color: #f59e0b; }
-            50% { border-color: #fbbf24; }
-        }
-        .active-card {
-            animation: pulse-border 1.5s infinite;
-        }
-    </style>
+    .desc {
+      font-size: 12px;
+      color: #b0b0b0;
+      margin: 8px 0;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 이미지 좌표 매핑 (characters1.jpg = 3열 6행 구조) */
+    /* ---------------------------------------------------- */
+    .char-raskolnikov { background-image: url('characters1.jpg'); background-position: 10% 2%; }
+    .char-dunya        { background-image: url('characters1.jpg'); background-position: 50% 2%; }
+    .char-pulcheria    { background-image: url('characters1.jpg'); background-position: 90% 2%; }
+    
+    .char-sonya        { background-image: url('characters1.jpg'); background-position: 10% 21%; }
+    .char-marmeladov   { background-image: url('characters1.jpg'); background-position: 50% 21%; }
+    .char-katerina     { background-image: url('characters1.jpg'); background-position: 90% 21%; }
+
+    .char-razumikhin   { background-image: url('characters1.jpg'); background-position: 10% 40%; }
+    .char-porfiry      { background-image: url('characters1.jpg'); background-position: 50% 40%; }
+    .char-zossimov     { background-image: url('characters1.jpg'); background-position: 90% 40%; }
+
+    .char-alyona       { background-image: url('characters1.jpg'); background-position: 10% 59%; }
+    .char-lizaveta     { background-image: url('characters1.jpg'); background-position: 50% 59%; }
+    .char-svidrigailov { background-image: url('characters1.jpg'); background-position: 90% 59%; }
+
+    .char-marfa        { background-image: url('characters1.jpg'); background-position: 10% 79%; }
+    .char-luzhin       { background-image: url('characters1.jpg'); background-position: 50% 79%; }
+    .char-police       { background-image: url('characters1.jpg'); background-position: 90% 79%; }
+  </style>
 </head>
-<body class="pixel-bg min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-amber-500 selection:text-black">
+<body>
 
-    <header class="p-4 border-b-4 border-slate-700 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-amber-600 border-2 border-amber-300 flex items-center justify-center text-xl shadow-lg">
-                    🪓
-                </div>
-                <div>
-                    <h1 class="text-xl md:text-2xl font-bold text-amber-400 tracking-wider">죄와 벌 (Crime & Punishment)</h1>
-                    <p class="text-xs text-sky-400">16-Bit JRPG 등장인물 캐릭터시트 & 인물 관계도</p>
-                </div>
-            </div>
+  <h1>🪓 도스토옙스키 『죄와 벌』 등장인물 도감</h1>
+  <p class="sub">실존주의 문학 발제를 위한 원본 픽셀 캐릭터 카드 모음</p>
 
-            <!-- Navigation Tabs -->
-            <div class="flex flex-wrap gap-2 text-sm">
-                <button onclick="switchTab('tree')" id="tab-tree" class="px-4 py-2 bg-amber-600 text-black font-bold border-2 border-amber-300 hover:bg-amber-500 transition shadow">
-                    <i class="fa-solid fa-diagram-project mr-1"></i> 인물 관계도
-                </button>
-                <button onclick="switchTab('cards')" id="tab-cards" class="px-4 py-2 bg-slate-800 text-slate-300 font-bold border-2 border-slate-600 hover:bg-slate-700 transition">
-                    <i class="fa-solid fa-users mr-1"></i> 16-bit 프로필 도감
-                </button>
-                <button onclick="switchTab('custom')" id="tab-custom" class="px-4 py-2 bg-slate-800 text-slate-300 font-bold border-2 border-slate-600 hover:bg-slate-700 transition">
-                    <i class="fa-solid fa-image mr-1"></i> 원본 시트 적용/커스텀
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto w-full p-4 flex-1">
-
-        <!-- TAB 1: INTERACTIVE RELATIONSHIP TREE -->
-        <section id="sec-tree" class="space-y-6">
-            <!-- Top Controls Info -->
-            <div class="jrpg-box p-4 rounded-none flex flex-col md:flex-row justify-between items-center text-xs md:text-sm gap-2">
-                <div class="flex items-center gap-2">
-                    <span class="text-amber-400">💡 팁:</span>
-                    <span>캐릭터 스프라이트를 클릭하여 세부 인물 정보와 관계 라인을 확인하세요!</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-500 inline-block"></span> 적대/갈등</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-emerald-400 inline-block"></span> 애정/구원</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-sky-400 inline-block"></span> 혈연/가족</span>
-                </div>
-            </div>
-
-            <!-- SVG Diagram Workspace -->
-            <div class="relative w-full bg-slate-950 border-4 border-slate-700 rounded-none overflow-hidden min-h-[620px] shadow-2xl">
-                <!-- SVG Canvas for Lines -->
-                <svg id="relationship-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
-
-                <!-- Interactive Nodes Container -->
-                <div id="nodes-container" class="relative w-full h-[620px] z-20">
-                    <!-- Nodes injected dynamically -->
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 2: CHARACTER CARDS CATALOG -->
-        <section id="sec-cards" class="hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cards-grid">
-                <!-- Cards injected dynamically -->
-            </div>
-        </section>
-
-        <!-- TAB 3: CUSTOM IMAGE SHEET ATTACHMENT -->
-        <section id="sec-custom" class="hidden space-y-6">
-            <div class="jrpg-box p-6 space-y-4">
-                <h2 class="text-lg font-bold text-amber-400 border-b-2 border-amber-500/40 pb-2">
-                    <i class="fa-solid fa-file-image mr-2"></i>첨부 이미지 원본 그대로 적용하기
-                </h2>
-                <p class="text-sm text-slate-300 leading-relaxed">
-                    소장하고 계신 <span class="text-amber-300 font-bold">'죄와 벌 등장인물1.jpg'</span> 스프라이트 시트 이미지 URL을 입력하거나, 파일 선택을 통해 앱 화면 전체에 실제 고화질 픽셀 아트를 배치할 수 있습니다.
-                </p>
-
-                <div class="flex flex-col md:flex-row gap-4">
-                    <input type="text" id="img-url-input" placeholder="스프라이트 시트 이미지 URL (https://...)" class="flex-1 bg-slate-900 border-2 border-slate-600 px-4 py-2 text-sm text-amber-200 focus:outline-none focus:border-amber-400">
-                    <button onclick="applyCustomImageUrl()" class="px-6 py-2 bg-amber-600 text-black font-bold border-2 border-amber-300 hover:bg-amber-500 transition">
-                        URL 적용
-                    </button>
-                    <label class="px-6 py-2 bg-sky-700 text-white font-bold border-2 border-sky-400 hover:bg-sky-600 cursor-pointer text-center">
-                        파일 업로드
-                        <input type="file" id="img-file-input" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
-                    </label>
-                </div>
-
-                <div class="mt-6 p-4 bg-slate-900 border-2 border-slate-800 rounded flex flex-col items-center justify-center min-h-[250px]">
-                    <div id="preview-placeholder" class="text-slate-500 text-center">
-                        <i class="fa-solid fa-photo-film text-4xl mb-2"></i>
-                        <p>이미지가 업로드되거나 URL이 입력되면 스프라이트 그리드 뷰어가 활성화됩니다.</p>
-                    </div>
-                    <img id="custom-sheet-preview" class="hidden max-h-[400px] border-2 border-amber-500 object-contain shadow-lg" alt="스프라이트 미리보기">
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <div id="char-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="jrpg-box-gold max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal()" class="absolute top-3 right-3 text-amber-400 hover:text-white text-xl px-2 border-2 border-amber-500 bg-slate-900">✕</button>
-
-            <div class="flex flex-col md:flex-row gap-6 items-center md:items-start" id="modal-content">
-                <!-- Modal dynamic insertion -->
-            </div>
-        </div>
+  <div class="grid">
+    <!-- 로지온 라스콜니코프 -->
+    <div class="card">
+      <div class="avatar-crop char-raskolnikov"></div>
+      <div class="desc">휴학 중인 23세 법학도. 초인 사상에 빠져 범죄를 저지름.</div>
+      <div class="name-box">
+        로지온(로쟈, 로젠카, 로지카, 로지엔키) 로마노비치(로마느이치) 라스콜니코프
+      </div>
     </div>
 
-    <footer class="p-4 border-t-4 border-slate-800 bg-slate-950 text-center text-xs text-slate-500">
-        <p>16-Bit JRPG Retro Style Presentation for Fyodor Dostoevsky's "Crime and Punishment"</p>
-        <p class="mt-1 text-slate-600">Designed for Crisp Pixel Rendering & Interactive Relationship Mapping</p>
-    </footer>
+    <!-- 아브도치야 (두냐) -->
+    <div class="card">
+      <div class="avatar-crop char-dunya"></div>
+      <div class="desc">라스콜니코프의 여동생. 고결하고 자존심 강한 성품.</div>
+      <div class="name-box">
+        아브도치야(두냐, 두네치카) 로마노브나 라스콜니코바
+      </div>
+    </div>
 
-    <script>
-        // Character Database with Detailed 16-Bit JRPG High Quality Pixel SVGs
-        const characters = [
-            {
-                id: "raskolnikov",
-                name: "로디온 라스콜리니코프",
-                title: "주인공 / 몰락한 대학생",
-                age: "23세",
-                trait: "초인사상, 죄책감, 내적 갈등",
-                desc: "스스로를 '선택받은 초인'으로 여겨 악덕 고리대금업자 노파를 살해하지만, 이내 극심한 정신적 고통과 죄책감에 시달린다.",
-                posX: 50, posY: 45, // percentage coordinates for tree
-                color: "#38bdf8",
-                svg: `<svg viewBox="0 0 64 64" class="w-full h-full">
-                    <!-- Coat -->
-                    <rect x="20" y="32" width="24" height="28" fill="#1e293b"/>
-                    <rect x="26" y="32" width="12" height="28" fill="#0f172a"/>
-                    <!-- Scarf/Collar -->
-                    <rect x="22" y="28" width="20" height="6" fill="#7f1d1d"/>
-                    <!-- Head -->
-                    <rect x="22" y="10" width="20" height="20" fill="#fde047"/>
-                    <!-- Pale Skin Tone overlay -->
-                    <rect x="22" y="12" width="20" height="18" fill="#fef08a"/>
-                    <!-- Dark Hair -->
-                    <rect x="20" y="8" width="24" height="8" fill="#1e1b4b"/>
-                    <rect x="18" y="12" width="6" height="12" fill="#1e1b4b"/>
-                    <rect x="40" y="12" width="6" height="12" fill="#1e1b4b"/>
-                    <!-- Eyes (Troubled/Hollow Look) -->
-                    <rect x="26" y="18" width="3" height="3" fill="#0284c7"/>
-                    <rect x="35" y="18" width="3" height="3" fill="#0284c7"/>
-                    <rect x="25" y="16" width="5" height="1" fill="#000"/>
-                    <rect x="34" y="16" width="5" height="1" fill="#000"/>
-                    <!-- Axe in hand hidden under coat shadow -->
-                    <rect x="42" y="38" width="4" height="18" fill="#78350f"/>
-                    <path d="M44 36 L52 32 L50 42 Z" fill="#94a3b8"/>
-                </svg>`
-            },
-            {
-                id: "sonya",
-                name: "소냐 마르멜라도바",
-                title: "성스러운 헌신자",
-                age: "18세",
-                trait: "순수, 구원, 희생정신",
-                desc: "가족의 생계를 위해 창녀가 되었으나, 영혼의 순수함을 잃지 않고 라스콜리니코프를 자수와 영적 구원으로 이끈다.",
-                posX: 25, posY: 45,
-                color: "#f43f5e",
-                svg: `<svg viewBox="0 0 64 64" class="w-full h-full">
-                    <!-- Dress -->
-                    <rect x="18" y="30" width="28" height="30" fill="#be123c"/>
-                    <rect x="22" y="28" width="20" height="8" fill="#fda4af"/>
-                    <!-- Yellow Shawl -->
-                    <path d="M16 32 Q32 44 48 32 L44 50 L20 50 Z" fill="#eab308" opacity="0.85"/>
-                    <!-- Head -->
-                    <rect x="22" y="12" width="20" height="18" fill="#fef08a"/>
-                    <!-- Golden/Blonde Hair -->
-                    <rect x="20" y="8" width="24" height="8" fill="#facc15"/>
-                    <rect x="18" y="12" width="6" height="18" fill="#facc15"/>
-                    <rect x="40" y="12" width="6" height="18" fill="#facc15"/>
-                    <!-- Eyes (Gentle) -->
-                    <rect x="26" y="18" width="3" height="3" fill="#22c55e"/>
-                    <rect x="35" y="18" width="3" height="3" fill="#22c55e"/>
-                    <!-- Cross Necklace -->
-                    <rect x="31" y="32" width="2" height="6" fill="#f59e0b"/>
-                    <rect x="29" y="34" width="6" height="2" fill="#f59e0b"/>
-                </svg>`
-            },
-            {
-                id: "porfiry",
-                name: "포르피리 페트로비치",
-                title: "예리한 수사관",
-                age: "35세",
-                trait: "심리학적 통찰, 냉철함",
-                desc: "라스콜리니코프의 심리를 집요하게 파고드는 판사. 직접적인 증거 없이도 심리적 압박으로 자백을 유도한다.",
-                posX: 75, posY: 45,
-                color: "#eab308",
-                svg: `<svg viewBox="0 0 64 64" class="w-full h-full">
-                    <!-- Uniform -->
-                    <rect x="18" y="30" width="28" height="30" fill="#15803d"/>
-                    <rect x="28" y="30" width="8" height="30" fill="#f59e0b"/>
-                    <!-- Head -->
-                    <rect x="22" y="12" width="20" height="18" fill="#fde047"/>
-                    <!-- Hair -->
-                    <rect x="20" y="8" width="24" height="6" fill="#475569"/>
-                    <!-- Glasses/Pince-nez -->
-                    <rect x="25" y="16" width="5" height="5" fill="none" stroke="#000" stroke-width="1.5"/>
-                    <rect x="34" y="16" width="5" height="5" fill="none" stroke="#000" stroke-width="1.5"/>
-                    <rect x="30" y="18" width="4" height="1" fill="#000"/>
-                    <!-- Smirk -->
-                    <rect x="28" y="24" width="8" height="2" fill="#991b1b"/>
-                </svg>`
-            },
-            {
-                id: "dunya",
-                name: "두냐 (두니아)",
-                title: "라스콜리니코프의 여동생",
-                age: "21세",
-                trait: "강직함, 자존심, 가족애",
-                desc: "오빠와 어머니를 위해 희생하려 루진과의 결혼을 결심했으나, 숭고한 자존심과 당당함을 잃지 않는다.",
-                posX: 50, posY: 18,
-                color: "#a855f7",
-                svg: `<svg viewBox="0 0 64 64" class="w-full h-full">
-                    <!-- Noble Dress -->
-                    <rect x="18" y="30" width="28" height="30" fill="#7e22ce"/>
-                    <rect x="24" y="28" width="16" height="10" fill="#f3e8ff"/>
-                    <!-- Head -->
-                    <rect x="22" y="12" width="20" height="18" fill="#fef08a"/>
-                    <!-- Dark Brown Hair Updo -->
-                    <rect x="18" y="6" width="28" height="10" fill="#451a03"/>
-                    <rect x="40" y="12" width="6" height="12" fill="#451a03"/>
-                    <!-- Eyes -->
-                    <rect x="26" y="18" width="3" height="3" fill="#1e1b4b"/>
-                    <rect x="35" y="18" width="3" height="3" fill="#1e1b4b"/>
-                </svg>`
-            },
-            {
-                id: "razumikhin",
-                name: "라주미힌",
-                title: "충직한 친구 / 진정한 의인",
-                age: "24세",
-                trait: "의리, 낙천적, 정직",
-                desc: "라스콜리니코프의 유일한 친한 친구. 병석에 눕자 온심을 다해 간호하고, 훗날 두냐와 결합한다.",
-                posX: 80, posY: 20,
-                color: "#10b981",
-                svg: `<svg viewBox="0 0 64 64" class="w-full h-full">
-                    <!-- Shirt/Vest -->
-                    <rect x="18" y="30" width="28" height="30" fill="#065f46"/>
-                    <rect x="26" y="30" width="12" height="30" fill="#f8fafc"/>
-                    <!-- Head -->
-                    <rect x="22" y="12" width="20" height="18" fill="#fde047"/>
-                    <!-- Brown Beard and Hair -->
-                    <rect x="20" y="8" width="24" height="8" fill="#78350f"/>
-                    <rect x="20" y="22" width="24" height="8" fill="#78350f"/>
-                    <!-- Bright Eyes -->
-                    <rect x="26" y="17" width="3" height="3" fill="#0284c7"/>
-                    <rect x="35" y="17" width="3" height="3" fill="#0284c7"/>
-                </svg>`
-            },
-            {
-                id: "svidrigailov",
-                name: "스비드리가일로프",
-                title: "음탕한 악인 / 라스콜리니코프의 분신",
-                age: "50대",
-                trait: "쾌락주의, 허무주의, 타락",
-                desc: "두냐에게 집착하며 도덕적 붕괴의 극단을 보여주는 인물. 허무에 빠져 결국 자살로 생을 마감한다.",
-                posX: 20, posY: 75,
-                color: "#64748b",
-                svg: `<svg viewBox="0 0 64 64" class="w-full h-full">
-                    <!-- Dark Aristocrat Coat -->
-                    <rect x="18" y="30" width="28" height="30" fill="#334155"/>
-                    <rect x="28" y="30" width="8" height="30" fill="#cbd5e1"/>
-                    <!-- Head -->
-                    <rect x="22" y="12" width="20" height="18" fill="#fed7aa"/>
-                    <!-- Grey Hair & Mustache -->
-                    <rect x="20" y="8" width="24" height="6" fill="#94a3b8"/>
-                    <rect x="24" y="22" width="16" height="3" fill="#94a3b8"/>
-                    <!-- Eyes (Cold) -->
-                    <rect x="26" y="17" width="3" height="2" fill="#0f172a"/>
-                    <rect x="35" y="17" width="3" height="2" fill="#0f172a"/>
-                </svg>`
-            },
-            {
-                id: "luzhin",
-                name: "루진",
-                title: "이기적인 속물 약혼자",
-                age: "45세",
-                trait: "탐욕, 위선, 계산적",
-                desc: "두냐의 가난함을 이용해 속박하려 한 졸부 법률가. 소냐에게 모함을 시도하다 폭로당해 망신을 당한다.",
-                posX: 80, posY: 75,
-                color: "#f59e0b",
-                svg: `<svg viewBox="0 0 64 64" class="w-full h-full">
-                    <!-- Top Hat & Fancy Suit -->
-                    <rect x="22" y="2" width="20" height="10" fill="#090d16"/>
-                    <rect x="16" y="10" width="32" height="3" fill="#090d16"/>
-                    <rect x="18" y="30" width="28" height="30" fill="#1e1b4b"/>
-                    <!-- Yellow Bowtie -->
-                    <rect x="29" y="31" width="6" height="4" fill="#f59e0b"/>
-                    <!-- Head -->
-                    <rect x="22" y="12" width="20" height="18" fill="#fde047"/>
-                    <!-- Slick Hair -->
-                    <rect x="20" y="11" width="24" height="4" fill="#000"/>
-                </svg>`
-            },
-            {
-                id: "marmeladov",
-                name: "마르멜라도바 (아버지)",
-                title: "퇴직 관리 / 알코올 중독자",
-                age: "50대",
-                trait: "절망, 자학, 무기력",
-                desc: "소냐의 아버지. 알코올 중독으로 가족을 도탄에 빠뜨리고 라스콜리니코프에게 절망을 고백한 뒤 마차에 치여 사망한다.",
-                posX: 20, posY: 20,
-                color: "#84cc16",
-                svg: `<svg viewBox="0 0 64 64" class="w-full h-full">
-                    <!-- Shabby Clothes -->
-                    <rect x="18" y="30" width="28" height="30" fill="#3f6212"/>
-                    <!-- Red Reddish Nose Head -->
-                    <rect x="22" y="12" width="20" height="18" fill="#fde047"/>
-                    <rect x="30" y="20" width="4" height="4" fill="#ef4444"/>
-                    <!-- Messy Hair -->
-                    <rect x="18" y="8" width="28" height="6" fill="#854d0e"/>
-                </svg>`
-            }
-        ];
+    <!-- 풀헤리아 -->
+    <div class="card">
+      <div class="avatar-crop char-pulcheria"></div>
+      <div class="desc">라스콜니코프의 어머니. 아들을 헌신적으로 사랑함.</div>
+      <div class="name-box">
+        풀헤리아 알렉산드로브나 라스콜니코바
+      </div>
+    </div>
 
-        // Relationships Map for Drawing SVG Canvas Lines
-        const relationships = [
-            { from: "raskolnikov", to: "sonya", label: "구원 / 구속", type: "love" },
-            { from: "raskolnikov", to: "porfiry", label: "심리적 대립", type: "hate" },
-            { from: "raskolnikov", to: "dunya", label: "남매 / 희생", type: "family" },
-            { from: "raskolnikov", to: "razumikhin", label: "유일한 친구", type: "family" },
-            { from: "dunya", to: "razumikhin", label: "연인 / 결혼", type: "love" },
-            { from: "dunya", to: "luzhin", label: "파혼된 약혼", type: "hate" },
-            { from: "dunya", to: "svidrigailov", label: "집착 / 스토킹", type: "hate" },
-            { from: "sonya", to: "marmeladov", label: "부녀 관계", type: "family" },
-            { from: "sonya", to: "luzhin", label: "모함과 누명", type: "hate" },
-            { from: "raskolnikov", to: "svidrigailov", label: "사상적 분신", type: "hate" }
-        ];
+    <!-- 소피야 (소냐) -->
+    <div class="card">
+      <div class="avatar-crop char-sonya"></div>
+      <div class="desc">마르멜라도프의 친딸(18세). 자기희생을 통해 영혼을 구원함.</div>
+      <div class="name-box">
+        소피야(소냐, 소네치카) 세묘노브나 마르멜라도바
+      </div>
+    </div>
 
-        let activeCharacterId = "raskolnikov";
+    <!-- 마르멜라도프 -->
+    <div class="card">
+      <div class="avatar-crop char-marmeladov"></div>
+      <div class="desc">실직한 관리. 알코올 중독으로 가족을 고통에 빠뜨림.</div>
+      <div class="name-box">
+        세묜 자하로비치(자하르이치) 마르멜라도프
+      </div>
+    </div>
 
-        function renderTree() {
-            const container = document.getElementById('nodes-container');
-            const svg = document.getElementById('relationship-svg');
-            container.innerHTML = '';
-            svg.innerHTML = '';
+    <!-- 카체리나 -->
+    <div class="card">
+      <div class="avatar-crop char-katerina"></div>
+      <div class="desc">마르멜라도프의 아내. 폐병과 극심한 가난 속에서 발버둥침.</div>
+      <div class="name-box">
+        카체리나 이바노브나 마르멜라도바
+      </div>
+    </div>
 
-            const rect = container.getBoundingClientRect();
+    <!-- 라주미힌 -->
+    <div class="card">
+      <div class="avatar-crop char-razumikhin"></div>
+      <div class="desc">휴학 중인 대학생. 라스콜니코프의 가장 충실한 친구.</div>
+      <div class="name-box">
+        드미트리 프로코피이치 라주미한(브라주미힌)
+      </div>
+    </div>
 
-            // Render Nodes
-            characters.forEach(char => {
-                const node = document.createElement('div');
-                node.className = `absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 ${activeCharacterId === char.id ? 'scale-110 active-card z-30' : 'hover:scale-105 z-20'}`;
-                node.style.left = `${char.posX}%`;
-                node.style.top = `${char.posY}%`;
-                node.onclick = () => selectCharacter(char.id);
+    <!-- 포르피리 -->
+    <div class="card">
+      <div class="avatar-crop char-porfiry"></div>
+      <div class="desc">예심판사. 심리전으로 라스콜니코프를 압박함.</div>
+      <div class="name-box">
+        포르피리 페트로비치
+      </div>
+    </div>
 
-                node.innerHTML = `
-                    <div class="jrpg-box p-2 text-center flex flex-col items-center w-28 md:w-36">
-                        <div class="w-12 h-12 md:w-16 md:h-16 mb-1 sprite-glow">
-                            ${char.svg}
-                        </div>
-                        <div class="text-xs md:text-sm font-bold text-amber-300 truncate w-full">${char.name}</div>
-                        <div class="text-[10px] text-sky-400 truncate w-full">${char.title.split('/')[0]}</div>
-                    </div>
-                `;
-                container.appendChild(node);
-            });
+    <!-- 조시모프 -->
+    <div class="card">
+      <div class="avatar-crop char-zossimov"></div>
+      <div class="desc">의사. 라주미힌의 친구.</div>
+      <div class="name-box">
+        조시모프
+      </div>
+    </div>
 
-            // Render SVG Lines
-            relationships.forEach(rel => {
-                const source = characters.find(c => c.id === rel.from);
-                const target = characters.find(c => c.id === rel.to);
+    <!-- 알료나 -->
+    <div class="card">
+      <div class="avatar-crop char-alyona"></div>
+      <div class="desc">60세 고리대금업자 관리 미망인.</div>
+      <div class="name-box">
+        알료나 이바노브나
+      </div>
+    </div>
 
-                if (source && target) {
-                    const x1 = (source.posX / 100) * rect.width;
-                    const y1 = (source.posY / 100) * rect.height;
-                    const x2 = (target.posX / 100) * rect.width;
-                    const y2 = (target.posY / 100) * rect.height;
+    <!-- 리자베타 -->
+    <div class="card">
+      <div class="avatar-crop char-lizaveta"></div>
+      <div class="desc">알료나의 이복 여동생. 순박하고 온순함.</div>
+      <div class="name-box">
+        리자베타 이바노브나
+      </div>
+    </div>
 
-                    let strokeColor = "#38bdf8"; // family/default
-                    if (rel.type === "hate") strokeColor = "#ef4444";
-                    if (rel.type === "love") strokeColor = "#34d399";
+    <!-- 스비드리가일로프 -->
+    <div class="card">
+      <div class="avatar-crop char-svidrigailov"></div>
+      <div class="desc">두냐가 가정교사로 있던 집의 지주. 쾌락주의자.</div>
+      <div class="name-box">
+        아르카지 이바노비치 스비드리가일로프
+      </div>
+    </div>
 
-                    const isHighlighted = activeCharacterId === rel.from || activeCharacterId === rel.to;
+    <!-- 마르파 -->
+    <div class="card">
+      <div class="avatar-crop char-marfa"></div>
+      <div class="desc">스비드리가일로프의 부인.</div>
+      <div class="name-box">
+        마르파 페트로브나 스비드리가일로바
+      </div>
+    </div>
 
-                    // Line
-                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    line.setAttribute("x1", x1);
-                    line.setAttribute("y1", y1);
-                    line.setAttribute("x2", x2);
-                    line.setAttribute("y2", y2);
-                    line.setAttribute("stroke", strokeColor);
-                    line.setAttribute("stroke-width", isHighlighted ? "4" : "2");
-                    line.setAttribute("stroke-dasharray", rel.type === "hate" ? "6,6" : "none");
-                    line.setAttribute("opacity", isHighlighted ? "1" : "0.35");
+    <!-- 루쥔 -->
+    <div class="card">
+      <div class="avatar-crop char-luzhin"></div>
+      <div class="desc">두냐의 약혼자. 이기적이고 속물적인 변호사.</div>
+      <div class="name-box">
+        표트르 페트로비치 루쥔
+      </div>
+    </div>
 
-                    svg.appendChild(line);
+    <!-- 경찰들 -->
+    <div class="card">
+      <div class="avatar-crop char-police"></div>
+      <div class="desc">경찰서장, 부서장, 서기 일동.</div>
+      <div class="name-box">
+        니코짐 포미치 / 일리야 페트로비치 / 자묘토프
+      </div>
+    </div>
+  </div>
 
-                    // Text Label on Line Center
-                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    text.setAttribute("x", (x1 + x2) / 2);
-                    text.setAttribute("y", (y1 + y2) / 2 - 6);
-                    text.setAttribute("fill", isHighlighted ? "#fbbf24" : strokeColor);
-                    text.setAttribute("font-size", "11 font-bold");
-                    text.setAttribute("text-anchor", "middle");
-                    text.setAttribute("opacity", isHighlighted ? "1" : "0.5");
-                    text.textContent = rel.label;
-
-                    svg.appendChild(text);
-                }
-            });
-        }
-
-        function renderCards() {
-            const grid = document.getElementById('cards-grid');
-            grid.innerHTML = '';
-
-            characters.forEach(char => {
-                const card = document.createElement('div');
-                card.className = "jrpg-box p-5 space-y-3 relative group hover:border-amber-400 transition cursor-pointer";
-                card.onclick = () => openModal(char.id);
-
-                card.innerHTML = `
-                    <div class="flex items-center space-x-4">
-                        <div class="w-20 h-20 bg-slate-900 border-2 border-slate-700 p-1 sprite-glow flex-shrink-0">
-                            ${char.svg}
-                        </div>
-                        <div>
-                            <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5">${char.age}</span>
-                            <h3 class="text-lg font-bold text-amber-400 mt-1">${char.name}</h3>
-                            <p class="text-xs text-sky-400">${char.title}</p>
-                        </div>
-                    </div>
-                    <div class="text-xs text-slate-300 border-t border-slate-800 pt-2 space-y-1">
-                        <p><strong class="text-amber-200">성격/특징:</strong> ${char.trait}</p>
-                        <p class="line-clamp-2 text-slate-400">${char.desc}</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] text-amber-400 underline">상세보기 [CLICK]</span>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function selectCharacter(id) {
-            activeCharacterId = id;
-            renderTree();
-            openModal(id);
-        }
-
-        function openModal(id) {
-            const char = characters.find(c => c.id === id);
-            if (!char) return;
-
-            const modalContent = document.getElementById('modal-content');
-            modalContent.innerHTML = `
-                <div class="w-32 h-32 md:w-40 md:h-40 bg-slate-950 border-4 border-amber-400 p-2 sprite-glow flex-shrink-0 mx-auto">
-                    ${char.svg}
-                </div>
-                <div class="flex-1 space-y-3">
-                    <div class="border-b-2 border-amber-500/50 pb-2">
-                        <span class="text-xs bg-amber-600 text-black px-2 py-0.5 font-bold">${char.age}</span>
-                        <h2 class="text-2xl font-bold text-amber-400 mt-1">${char.name}</h2>
-                        <p class="text-sm text-sky-300">${char.title}</p>
-                    </div>
-                    <div class="text-sm space-y-2 text-slate-200">
-                        <p><strong class="text-amber-300">주요 성격:</strong> ${char.trait}</p>
-                        <p class="leading-relaxed bg-slate-900/80 p-3 border border-slate-800">${char.desc}</p>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('char-modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('char-modal').classList.add('hidden');
-        }
-
-        function switchTab(tab) {
-            document.getElementById('sec-tree').classList.add('hidden');
-            document.getElementById('sec-cards').classList.add('hidden');
-            document.getElementById('sec-custom').classList.add('hidden');
-
-            document.getElementById('tab-tree').className = "px-4 py-2 bg-slate-800 text-slate-300 font-bold border-2 border-slate-600 hover:bg-slate-700 transition";
-            document.getElementById('tab-cards').className = "px-4 py-2 bg-slate-800 text-slate-300 font-bold border-2 border-slate-600 hover:bg-slate-700 transition";
-            document.getElementById('tab-custom').className = "px-4 py-2 bg-slate-800 text-slate-300 font-bold border-2 border-slate-600 hover:bg-slate-700 transition";
-
-            if (tab === 'tree') {
-                document.getElementById('sec-tree').classList.remove('hidden');
-                document.getElementById('tab-tree').className = "px-4 py-2 bg-amber-600 text-black font-bold border-2 border-amber-300 hover:bg-amber-500 transition shadow";
-                renderTree();
-            } else if (tab === 'cards') {
-                document.getElementById('sec-cards').classList.remove('hidden');
-                document.getElementById('tab-cards').className = "px-4 py-2 bg-amber-600 text-black font-bold border-2 border-amber-300 hover:bg-amber-500 transition shadow";
-            } else if (tab === 'custom') {
-                document.getElementById('sec-custom').classList.remove('hidden');
-                document.getElementById('tab-custom').className = "px-4 py-2 bg-amber-600 text-black font-bold border-2 border-amber-300 hover:bg-amber-500 transition shadow";
-            }
-        }
-
-        // Custom Image Functions
-        function applyCustomImageUrl() {
-            const url = document.getElementById('img-url-input').value;
-            if (url) {
-                showPreview(url);
-            }
-        }
-
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    showPreview(e.target.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function showPreview(src) {
-            const img = document.getElementById('custom-sheet-preview');
-            const placeholder = document.getElementById('preview-placeholder');
-            img.src = src;
-            img.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-        }
-
-        // Window resize re-render for SVG lines accuracy
-        window.addEventListener('resize', () => {
-            if (!document.getElementById('sec-tree').classList.contains('hidden')) {
-                renderTree();
-            }
-        });
-
-        // Initialize App
-        window.onload = function() {
-            renderTree();
-            renderCards();
-        };
-    </script>
 </body>
 </html>
